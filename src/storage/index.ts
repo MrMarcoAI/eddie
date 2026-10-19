@@ -11,6 +11,7 @@ const DEFAULT_SETTINGS: Settings = {
   sidebarVisible: true,
   sortOrder: 'updatedAt',
   lastOpenDocId: null,
+  collapsedFolderIds: [],
 };
 
 /** Asks Chrome not to evict IndexedDB under storage pressure. */

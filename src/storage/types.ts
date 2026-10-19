@@ -27,6 +27,7 @@ export interface Settings {
   sidebarVisible: boolean;
   sortOrder: SortOrder;
   lastOpenDocId: string | null;
+  collapsedFolderIds: string[];
 }
 
 export interface Backup {
