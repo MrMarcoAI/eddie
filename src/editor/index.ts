@@ -5,6 +5,7 @@ import { languages } from '@codemirror/language-data';
 import { EditorState, Prec } from '@codemirror/state';
 import { drawSelection, EditorView, keymap } from '@codemirror/view';
 import { markdownDecorations } from './decorations';
+import { formatKeymap } from './format';
 import { clickHandlers, listKeymap } from './lists';
 import { theme } from './theme';
 
@@ -16,7 +17,7 @@ function createState(content: string, onChange: (content: string) => void): Edit
       drawSelection(),
       EditorView.lineWrapping,
       yamlFrontmatter({ content: markdown({ base: markdownLanguage, codeLanguages: languages }) }),
-      Prec.high(keymap.of(listKeymap)),
+      Prec.high(keymap.of([...listKeymap, ...formatKeymap])),
       keymap.of([...defaultKeymap, ...historyKeymap]),
       markdownDecorations,
       clickHandlers,

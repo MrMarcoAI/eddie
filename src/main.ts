@@ -1,5 +1,6 @@
 import { createEditor } from './editor';
 import { exportBackupFile, exportDoc, importBackupFile } from './export';
+import { registerShortcuts, toggleHelp } from './shortcuts';
 import { createSidebar } from './sidebar';
 import * as storage from './storage';
 import './styles/main.css';
@@ -88,8 +89,27 @@ const sidebar = await createSidebar(
       // The open doc may have been replaced by a newer version from the backup
       await open(currentId ?? (await mostRecentDocId()));
     },
+    help: toggleHelp,
   },
 );
+
+async function exportCurrent(format: 'md' | 'html' | 'pdf') {
+  if (!currentId) return;
+  await flush();
+  const doc = await storage.getDoc(currentId);
+  if (doc) await exportDoc(doc, format);
+}
+
+registerShortcuts((action) => {
+  if (action === 'toggleSidebar') sidebar.toggle();
+  else if (action === 'newDoc') sidebar.newDoc();
+  else if (action === 'newFolder') sidebar.newFolder();
+  else if (action === 'search') sidebar.openSearch();
+  else if (action === 'exportMd') exportCurrent('md');
+  else if (action === 'exportHtml') exportCurrent('html');
+  else if (action === 'exportPdf') exportCurrent('pdf');
+  else if (action === 'help') toggleHelp();
+});
 
 // Save before the window closes or goes to the background
 addEventListener('pagehide', flush);

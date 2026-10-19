@@ -8,6 +8,7 @@ export interface SidebarHandlers {
   exportDoc(id: string, format: 'md' | 'html' | 'pdf'): void;
   backup(): void;
   restore(): void;
+  help(): void;
 }
 
 export interface Sidebar {
@@ -16,6 +17,7 @@ export interface Sidebar {
   newDoc(folderId?: string | null): Promise<void>;
   newFolder(parentId?: string | null): Promise<void>;
   toggle(): void;
+  openSearch(): void;
 }
 
 const ICONS = {
@@ -383,17 +385,14 @@ export async function createSidebar(root: HTMLElement, handlers: SidebarHandlers
     showMenu(moreButton, [
       ['Respaldar todo (.json)', handlers.backup],
       ['Importar respaldo…', handlers.restore],
+      ['Atajos de teclado', handlers.help],
     ]);
   };
   newFolderButton.onclick = () => api.newFolder();
   hideButton.onclick = () => api.toggle();
   showButton.onclick = () => api.toggle();
   collapsedNewDoc.onclick = () => api.newDoc();
-  collapsedSearch.onclick = () => {
-    api.toggle();
-    searchRow.hidden = false;
-    search.focus();
-  };
+  collapsedSearch.onclick = () => api.openSearch();
 
   function applyVisibility() {
     document.body.classList.toggle('sidebar-hidden', !visible);
@@ -420,6 +419,12 @@ export async function createSidebar(root: HTMLElement, handlers: SidebarHandlers
       closeSearch();
       await refresh();
       rename(folder.id, 'folder');
+    },
+    openSearch() {
+      if (!visible) api.toggle();
+      searchRow.hidden = false;
+      search.focus();
+      search.select();
     },
     toggle() {
       visible = !visible;
