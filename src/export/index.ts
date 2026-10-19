@@ -54,17 +54,27 @@ async function printPdf(content: string, title: string): Promise<void> {
     srcdoc: await renderHtml(content, title, 'light'),
     ariaHidden: 'true',
   });
-  frame.style.cssText = 'position:fixed;width:0;height:0;border:0;visibility:hidden';
+  // Off-screen but full size: Chrome won't print a zero-size or hidden frame
+  frame.style.cssText = 'position:fixed;left:-10000px;top:0;width:800px;height:600px;border:0';
   await new Promise((resolve) => {
     frame.onload = resolve;
     document.body.append(frame);
   });
+  const win = frame.contentWindow!;
   // Chrome names the PDF after the page title
   const previous = document.title;
   document.title = kebabCase(title);
-  frame.contentWindow!.print();
-  document.title = previous;
-  frame.remove();
+  // print() doesn't block for frames, so clean up only once the dialog closes
+  win.addEventListener(
+    'afterprint',
+    () => {
+      document.title = previous;
+      frame.remove();
+    },
+    { once: true },
+  );
+  win.focus();
+  win.print();
 }
 
 export async function exportDoc(doc: Doc, format: ExportFormat): Promise<void> {
