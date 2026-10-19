@@ -104,8 +104,8 @@ select {
 .icon-button {
   display: inline-grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   padding: 0;
   border: 0;
   border-radius: 6px;
@@ -129,7 +129,7 @@ select {
   flex-direction: column;
   background: var(--bg-sidebar);
   border-right: 1px solid var(--border);
-  font-size: 14px;
+  font-size: 13px;
   overflow: hidden;
   transition: margin-left 0.18s ease;
 }
@@ -147,12 +147,29 @@ select {
 .sidebar-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 14px 10px 10px 14px;
+  gap: 1px;
+  padding: 12px 8px 8px 14px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.sidebar-search-row {
+  padding: 0 8px 6px;
+}
+
+.sidebar-search {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  font-size: 13px;
 }
 
 .sidebar-logo {
-  height: 18px;
+  height: 15px;
   width: auto;
 }
 
@@ -163,51 +180,14 @@ select {
   z-index: 2;
 }
 
-.sidebar-tools {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 0 10px 8px;
-}
-
-.sidebar-search,
-.sidebar-sort {
-  width: 100%;
-  padding: 6px 8px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--bg);
-}
 
 .sidebar-sort {
   color: var(--text-muted);
   font-size: 13px;
 }
 
-.sidebar-actions {
-  display: flex;
-  gap: 4px;
-  padding: 0 6px 6px;
-  border-bottom: 1px solid var(--border);
-}
 
-.text-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 8px;
-  border: 0;
-  border-radius: 6px;
-  background: none;
-  color: var(--text-muted);
-  font-size: 13px;
-  cursor: pointer;
-}
 
-.text-button:hover {
-  color: var(--text);
-  background: var(--bg-hover);
-}
 
 .tree {
   flex: 1;
@@ -245,7 +225,7 @@ select {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 8px;
+  padding: 5px 8px;
   border: 0;
   background: none;
   text-align: left;
@@ -317,17 +297,20 @@ select {
 .menu {
   position: fixed;
   z-index: 10;
-  min-width: 180px;
+  min-width: 170px;
   padding: 4px;
   display: flex;
   flex-direction: column;
   background: var(--bg-sidebar);
   border: 1px solid var(--border);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 6px 10px;
   border: 0;
   border-radius: 5px;

@@ -16,8 +16,11 @@ export interface Sidebar {
 }
 
 const ICONS = {
-  doc: '<path d="M7 3h7l5 5v13H7z M14 3v5h5"/>',
-  folder: '<path d="M3 6h6l2 2h10v11H3z"/>',
+  newDoc: '<path d="M12 5v14M5 12h14"/>',
+  newFolder: '<path d="M3 6h6l2 2h10v11H3z M12 11v5M9.5 13.5h5"/>',
+  search: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>',
+  sort: '<path d="M7 4v16M3.5 16.5L7 20l3.5-3.5M17 20V4M13.5 7.5L17 4l3.5 3.5"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   hide: '<path d="M4 4h16v16H4z M10 4v16"/>',
   more: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
   chevron: '<path d="M9 6l6 6-6 6"/>',
@@ -55,24 +58,21 @@ export async function createSidebar(root: HTMLElement, showButton: HTMLElement, 
   // Static structure
 
   const logo = el('img', { src: `${import.meta.env.BASE_URL}eddie-logo.png`, alt: 'eddie', className: 'sidebar-logo' });
-  const hideButton = el('button', { className: 'icon-button', title: 'Esconder panel', ariaLabel: 'Esconder panel' }, icon('hide'));
+  const iconButton = (name: keyof typeof ICONS, label: string) =>
+    el('button', { className: 'icon-button', title: label, ariaLabel: label }, icon(name));
+  const searchButton = iconButton('search', 'Buscar');
+  const sortButton = iconButton('sort', 'Ordenar');
+  const newFolderButton = iconButton('newFolder', 'Nueva carpeta');
+  const newDocButton = iconButton('newDoc', 'Nuevo documento');
+  const hideButton = iconButton('hide', 'Esconder panel');
   const search = el('input', { type: 'search', placeholder: 'Buscar', className: 'sidebar-search', ariaLabel: 'Buscar documentos' });
-  const sort = el('select', { className: 'sidebar-sort', ariaLabel: 'Ordenar por' });
-  for (const [value, label] of Object.entries(SORT_LABELS)) sort.append(el('option', { value, textContent: label }));
-  sort.value = sortOrder;
-  const newDocButton = el('button', { className: 'text-button' }, `${icon('doc')}<span>Documento</span>`);
-  const newFolderButton = el('button', { className: 'text-button' }, `${icon('folder')}<span>Carpeta</span>`);
+  const searchRow = el('div', { className: 'sidebar-search-row', hidden: true });
   const tree = el('nav', { className: 'tree', ariaLabel: 'Documentos' });
 
-  root.append(
-    el('header', { className: 'sidebar-header' }),
-    el('div', { className: 'sidebar-tools' }),
-    el('div', { className: 'sidebar-actions' }),
-    tree,
-  );
-  root.children[0].append(logo, hideButton);
-  root.children[1].append(search, sort);
-  root.children[2].append(newDocButton, newFolderButton);
+  const header = el('header', { className: 'sidebar-header' });
+  header.append(logo, el('span', { className: 'spacer' }), searchButton, sortButton, newFolderButton, newDocButton, hideButton);
+  searchRow.append(search);
+  root.append(header, searchRow, tree);
 
   // Data
 
@@ -208,21 +208,18 @@ export async function createSidebar(root: HTMLElement, showButton: HTMLElement, 
     menu = null;
   }
 
-  function openMenu(anchor: HTMLElement, id: string, kind: 'doc' | 'folder') {
+  type MenuItem = [label: string, action: () => void, checked?: boolean];
+
+  function showMenu(anchor: HTMLElement, items: MenuItem[]) {
     closeMenu();
-    const items: [string, () => void][] = [
-      ...(kind === 'folder'
-        ? ([
-            ['Nuevo documento aquí', () => api.newDoc(id)],
-            ['Nueva carpeta aquí', () => api.newFolder(id)],
-          ] as [string, () => void][])
-        : []),
-      ['Renombrar', () => rename(id, kind)],
-      ['Eliminar', () => remove(id, kind)],
-    ];
     menu = el('div', { className: 'menu', role: 'menu' });
-    for (const [label, action] of items) {
-      const b = el('button', { textContent: label, role: 'menuitem' });
+    for (const [label, action, checked] of items) {
+      const b = el('button', { role: checked === undefined ? 'menuitem' : 'menuitemradio' });
+      if (checked !== undefined) {
+        b.ariaChecked = String(checked);
+        b.innerHTML = checked ? icon('check') : '<span class="icon"></span>';
+      }
+      b.append(label);
       b.onclick = (e) => {
         e.stopPropagation();
         closeMenu();
@@ -235,6 +232,20 @@ export async function createSidebar(root: HTMLElement, showButton: HTMLElement, 
     menu.style.left = `${Math.min(r.left, innerWidth - 200)}px`;
     document.body.append(menu);
     (menu.firstElementChild as HTMLElement).focus();
+  }
+
+  function openMenu(anchor: HTMLElement, id: string, kind: 'doc' | 'folder') {
+    const items: MenuItem[] = [
+      ...(kind === 'folder'
+        ? ([
+            ['Nuevo documento aquí', () => api.newDoc(id)],
+            ['Nueva carpeta aquí', () => api.newFolder(id)],
+          ] as MenuItem[])
+        : []),
+      ['Renombrar', () => rename(id, kind)],
+      ['Eliminar', () => remove(id, kind)],
+    ];
+    showMenu(anchor, items);
   }
 
   document.addEventListener('click', (e) => menu && !menu.contains(e.target as Node) && closeMenu());
@@ -315,15 +326,38 @@ export async function createSidebar(root: HTMLElement, showButton: HTMLElement, 
 
   // Header controls
 
+  function closeSearch() {
+    searchRow.hidden = true;
+    search.value = query = '';
+    render();
+  }
+
   search.addEventListener('input', () => {
     query = search.value.trim();
     render();
   });
-  sort.addEventListener('change', async () => {
-    sortOrder = sort.value as SortOrder;
-    await storage.setSetting('sortOrder', sortOrder);
-    render();
-  });
+  search.addEventListener('keydown', (e) => e.key === 'Escape' && closeSearch());
+  searchButton.onclick = () => {
+    if (searchRow.hidden) {
+      searchRow.hidden = false;
+      search.focus();
+    } else closeSearch();
+  };
+  sortButton.onclick = (e) => {
+    e.stopPropagation();
+    showMenu(
+      sortButton,
+      (Object.entries(SORT_LABELS) as [SortOrder, string][]).map(([value, label]) => [
+        label,
+        async () => {
+          sortOrder = value;
+          await storage.setSetting('sortOrder', value);
+          render();
+        },
+        value === sortOrder,
+      ]),
+    );
+  };
   newDocButton.onclick = () => api.newDoc();
   newFolderButton.onclick = () => api.newFolder();
   hideButton.onclick = () => api.toggle();
@@ -344,14 +378,14 @@ export async function createSidebar(root: HTMLElement, showButton: HTMLElement, 
     async newDoc(folderId = null) {
       const doc = await storage.createDoc({ folderId });
       if (folderId) collapsed.delete(folderId);
-      query = search.value = '';
+      closeSearch();
       await refresh();
       handlers.open(doc.id);
     },
     async newFolder(parentId = null) {
       const folder = await storage.createFolder('Nueva carpeta', parentId);
       if (parentId) collapsed.delete(parentId);
-      query = search.value = '';
+      closeSearch();
       await refresh();
       rename(folder.id, 'folder');
     },
