@@ -34,3 +34,4 @@ Registrar aquí, en una línea cada una, las decisiones que cambien o precisen e
 - 2026-10-19 · `icons/` contiene íconos con estilo macOS/iOS (bordes redondeados); se usan como base para los íconos de la PWA en la fase 7.
 - 2026-10-19 · `public/eddie-logo.png` se convirtió a blanco sobre transparente y se recortó (846×244); el original traía fondo oscuro.
 - 2026-10-19 · Sidebar: el menú "⋯" (o clic derecho) tiene renombrar y eliminar; doble clic renombra. Las carpetas colapsadas se recuerdan (`collapsedFolderIds`). El atajo para esconder el sidebar queda para la fase 6.
+- 2026-10-19 · Colores verificados en claude.ai (tema oscuro actual): `--bg` #151515, `--bg-sidebar` #111111, `--bg-code` #20201f, `--text` #f9f9f7, `--text-muted` #97958d. El fucsia queda en 5,7:1 sobre `--bg` (antes 4,7:1). Los tamaños de títulos se mantienen (2 / 1,5 / 1,25 em) porque el usuario los aprobó.

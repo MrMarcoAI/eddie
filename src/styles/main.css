@@ -1,16 +1,16 @@
-/* Draft tokens; final values are set in the design phase. */
+/* Colors verified against Claude's dark theme (claude.ai, Oct 2026). */
 :root {
-  --bg: #262624;
-  --bg-sidebar: #1f1e1d;
-  --bg-code: #30302e;
-  --text: #f5f4ef;
-  --text-quote: #c9c7bf;
-  --text-muted: #9a988f;
-  --border: #3a3936;
+  --bg: #151515;
+  --bg-sidebar: #111111;
+  --bg-code: #20201f;
+  --text: #f9f9f7;
+  --text-quote: #c3c2b7;
+  --text-muted: #97958d;
+  --border: rgba(225, 224, 217, 0.12);
   --accent: #ff2bd6;
-  --selection: rgba(255, 43, 214, 0.28);
-  --bg-hover: rgba(255, 255, 255, 0.05);
-  --bg-active: rgba(255, 255, 255, 0.09);
+  --selection: rgba(255, 43, 214, 0.3);
+  --bg-hover: rgba(225, 224, 217, 0.06);
+  --bg-active: rgba(225, 224, 217, 0.1);
   --sidebar-width: 260px;
 
   --code-keyword: #e48bd8;
@@ -55,9 +55,12 @@ body {
 
 .status {
   position: fixed;
-  right: 16px;
-  bottom: 12px;
+  right: 10px;
+  bottom: 8px;
   font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--bg);
   color: var(--text-muted);
   pointer-events: none;
   font-variant-numeric: tabular-nums;
@@ -138,9 +141,18 @@ select {
   margin-left: calc(-1 * var(--sidebar-width));
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sidebar {
     transition: none;
+  }
+  .sidebar-collapsed {
+    animation: none;
   }
 }
 
@@ -174,6 +186,8 @@ select {
 }
 
 .sidebar-collapsed {
+  /* Appears once the panel has slid away */
+  animation: fade-in 0.12s ease 0.15s both;
   position: fixed;
   top: 8px;
   left: 8px;
@@ -304,7 +318,7 @@ select {
   padding: 4px;
   display: flex;
   flex-direction: column;
-  background: var(--bg-sidebar);
+  background: var(--bg-code);
   border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 13px;
