@@ -62,7 +62,6 @@ async function mostRecentDocId(): Promise<string | null> {
 
 const sidebar = await createSidebar(
   document.querySelector('#sidebar')!,
-  document.querySelector('#sidebar-show')!,
   {
     open,
     async deleted(ids) {

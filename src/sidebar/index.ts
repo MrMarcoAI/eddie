@@ -44,7 +44,7 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, props: object = {}, h
   return node;
 }
 
-export async function createSidebar(root: HTMLElement, showButton: HTMLElement, handlers: SidebarHandlers): Promise<Sidebar> {
+export async function createSidebar(root: HTMLElement, handlers: SidebarHandlers): Promise<Sidebar> {
   const settings = await storage.getSettings();
   let docs: Doc[] = [];
   let folders: Folder[] = [];
@@ -73,6 +73,14 @@ export async function createSidebar(root: HTMLElement, showButton: HTMLElement, 
   header.append(logo, el('span', { className: 'spacer' }), searchButton, sortButton, newFolderButton, newDocButton, hideButton);
   searchRow.append(search);
   root.append(header, searchRow, tree);
+
+  // Shortcuts that stay on screen while the panel is hidden
+  const showButton = iconButton('hide', 'Mostrar panel');
+  const collapsedSearch = iconButton('search', 'Buscar');
+  const collapsedNewDoc = iconButton('newDoc', 'Nuevo documento');
+  const collapsedBar = el('div', { className: 'sidebar-collapsed' });
+  collapsedBar.append(showButton, collapsedNewDoc, collapsedSearch);
+  root.after(collapsedBar);
 
   // Data
 
@@ -362,11 +370,17 @@ export async function createSidebar(root: HTMLElement, showButton: HTMLElement, 
   newFolderButton.onclick = () => api.newFolder();
   hideButton.onclick = () => api.toggle();
   showButton.onclick = () => api.toggle();
+  collapsedNewDoc.onclick = () => api.newDoc();
+  collapsedSearch.onclick = () => {
+    api.toggle();
+    searchRow.hidden = false;
+    search.focus();
+  };
 
   function applyVisibility() {
     document.body.classList.toggle('sidebar-hidden', !visible);
     root.inert = !visible;
-    showButton.hidden = visible;
+    collapsedBar.hidden = visible;
   }
 
   const api: Sidebar = {

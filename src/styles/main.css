@@ -173,11 +173,14 @@ select {
   width: auto;
 }
 
-.sidebar-show {
+.sidebar-collapsed {
   position: fixed;
-  top: 12px;
-  left: 10px;
+  top: 8px;
+  left: 8px;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 
