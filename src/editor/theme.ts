@@ -1,6 +1,7 @@
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { EditorView } from '@codemirror/view';
 import { tags as t } from '@lezer/highlight';
+import { codeTokens } from './codeTokens';
 
 // Markdown text styling. Heading sizes live on line classes (see decorations.ts)
 // so the "#" marks scale with the title text.
@@ -19,13 +20,7 @@ const markdownStyle = HighlightStyle.define([
   { tag: t.meta, color: 'var(--text-muted)' },
 
   // Code inside fenced blocks and front matter
-  { tag: [t.keyword, t.modifier, t.operatorKeyword], color: 'var(--code-keyword)' },
-  { tag: [t.string, t.special(t.string), t.regexp], color: 'var(--code-string)' },
-  { tag: [t.number, t.bool, t.null], color: 'var(--code-number)' },
-  { tag: [t.comment, t.lineComment, t.blockComment], color: 'var(--text-muted)', fontStyle: 'italic' },
-  { tag: [t.function(t.variableName), t.function(t.propertyName)], color: 'var(--code-function)' },
-  { tag: [t.typeName, t.className, t.tagName], color: 'var(--code-type)' },
-  { tag: [t.propertyName, t.attributeName], color: 'var(--code-property)' },
+  ...codeTokens.map(({ class: _, ...style }) => style),
 ]);
 
 const editorTheme = EditorView.theme(

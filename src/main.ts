@@ -1,4 +1,5 @@
 import { createEditor } from './editor';
+import { exportBackupFile, exportDoc, importBackupFile } from './export';
 import { createSidebar } from './sidebar';
 import * as storage from './storage';
 import './styles/main.css';
@@ -70,6 +71,22 @@ const sidebar = await createSidebar(
         currentId = null;
         await open(await mostRecentDocId());
       }
+    },
+    async exportDoc(id, format) {
+      await flush();
+      const doc = await storage.getDoc(id);
+      if (doc) await exportDoc(doc, format);
+    },
+    async backup() {
+      await flush();
+      await exportBackupFile();
+    },
+    async restore() {
+      await flush();
+      if (!(await importBackupFile())) return;
+      await sidebar.refresh();
+      // The open doc may have been replaced by a newer version from the backup
+      await open(currentId ?? (await mostRecentDocId()));
     },
   },
 );

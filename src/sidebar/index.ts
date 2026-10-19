@@ -5,6 +5,9 @@ export interface SidebarHandlers {
   open(id: string): void;
   /** Docs that were just deleted, so the app can close the current one. */
   deleted(ids: string[]): void;
+  exportDoc(id: string, format: 'md' | 'html' | 'pdf'): void;
+  backup(): void;
+  restore(): void;
 }
 
 export interface Sidebar {
@@ -65,12 +68,13 @@ export async function createSidebar(root: HTMLElement, handlers: SidebarHandlers
   const newFolderButton = iconButton('newFolder', 'Nueva carpeta');
   const newDocButton = iconButton('newDoc', 'Nuevo documento');
   const hideButton = iconButton('hide', 'Esconder panel');
+  const moreButton = iconButton('more', 'Más opciones');
   const search = el('input', { type: 'search', placeholder: 'Buscar', className: 'sidebar-search', ariaLabel: 'Buscar documentos' });
   const searchRow = el('div', { className: 'sidebar-search-row', hidden: true });
   const tree = el('nav', { className: 'tree', ariaLabel: 'Documentos' });
 
   const header = el('header', { className: 'sidebar-header' });
-  header.append(logo, el('span', { className: 'spacer' }), searchButton, sortButton, newFolderButton, newDocButton, hideButton);
+  header.append(logo, el('span', { className: 'spacer' }), moreButton, searchButton, sortButton, newFolderButton, newDocButton, hideButton);
   searchRow.append(search);
   root.append(header, searchRow, tree);
 
@@ -250,6 +254,13 @@ export async function createSidebar(root: HTMLElement, handlers: SidebarHandlers
             ['Nueva carpeta aquí', () => api.newFolder(id)],
           ] as MenuItem[])
         : []),
+      ...(kind === 'doc'
+        ? ([
+            ['Exportar .md', () => handlers.exportDoc(id, 'md')],
+            ['Exportar .html', () => handlers.exportDoc(id, 'html')],
+            ['Exportar .pdf', () => handlers.exportDoc(id, 'pdf')],
+          ] as MenuItem[])
+        : []),
       ['Renombrar', () => rename(id, kind)],
       ['Eliminar', () => remove(id, kind)],
     ];
@@ -367,6 +378,13 @@ export async function createSidebar(root: HTMLElement, handlers: SidebarHandlers
     );
   };
   newDocButton.onclick = () => api.newDoc();
+  moreButton.onclick = (e) => {
+    e.stopPropagation();
+    showMenu(moreButton, [
+      ['Respaldar todo (.json)', handlers.backup],
+      ['Importar respaldo…', handlers.restore],
+    ]);
+  };
   newFolderButton.onclick = () => api.newFolder();
   hideButton.onclick = () => api.toggle();
   showButton.onclick = () => api.toggle();
