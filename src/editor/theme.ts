@@ -28,7 +28,7 @@ const editorTheme = EditorView.theme(
     '&': { height: '100%', backgroundColor: 'var(--bg)', color: 'var(--text)' },
     '&.cm-focused': { outline: 'none' },
     '.cm-scroller': {
-      fontFamily: 'var(--font-text)',
+      fontFamily: 'var(--font-mono)',
       fontSize: 'var(--font-size)',
       lineHeight: '1.65',
     },
@@ -58,7 +58,6 @@ const editorTheme = EditorView.theme(
     },
     '.cm-codeblock-first': { borderTopLeftRadius: '6px', borderTopRightRadius: '6px' },
     '.cm-codeblock-last': { borderBottomLeftRadius: '6px', borderBottomRightRadius: '6px' },
-    '.cm-table': { fontFamily: 'var(--font-mono)', fontSize: '0.9em' },
     '.cm-frontmatter': { fontFamily: 'var(--font-mono)', fontSize: '0.85em' },
     '.cm-frontmatter, .cm-frontmatter span': { color: 'var(--text-muted)' },
     // Nested selectors so the accent wins over the muted Markdown marks
